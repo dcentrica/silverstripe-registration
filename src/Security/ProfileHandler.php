@@ -1,9 +1,9 @@
 <?php
 
-namespace Registration\Security\MemberAuthenticator;
+namespace Dcentrica\Registration\Security;
 
-use Profile\Security\MemberAuthenticator\MemberProfileForm;
-use Registration\Security\Security;
+use Dcentrica\Profile\Security\MemberProfileForm;
+use Dcentrica\Registration\Security\Security;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
@@ -100,15 +100,11 @@ class ProfileHandler extends RequestHandler
      */
     public function doSave($data, MemberProfileForm $form, HTTPRequest $request)
     {
-        $failureMessage = null;
-
         $this->extend('beforeSaveProfile');
         // Successful login
         $member = Security::getCurrentUser();
         if ($data['ProfileImage']['error'] == 4) unset($data['ProfileImage']);
         $form->saveInto($member, array_keys($data));
-//        var_dump(json_encode($data));
-//        die;
         /** @var ValidationResult $result */
         $result = $member->validate();
         if ($member->write()) {
@@ -141,7 +137,6 @@ class ProfileHandler extends RequestHandler
                 ->set('SessionForms.MemberProfileForm.Remember', $rememberMe);
         }
 
-
         // Fail to login redirects back to form
         return $form->getRequestHandler()->redirectBackToForm();
     }
@@ -158,10 +153,11 @@ class ProfileHandler extends RequestHandler
      * @param null|string $action
      * @return string
      */
-    public function Link($action = null)
+    public function Link($action = null): string
     {
         $link = Controller::join_links($this->link, $action);
         $this->extend('updateLink', $link, $action);
+
         return $link;
     }
 
@@ -179,7 +175,7 @@ class ProfileHandler extends RequestHandler
      *
      * @return HTTPResponse
      */
-    protected function redirectAfterSuccessfulRegistration()
+    protected function redirectAfterSuccessfulRegistration(): HTTPResponse
     {
         $this
             ->getRequest()

@@ -1,6 +1,6 @@
 <?php
 
-namespace Registration\Security;
+namespace Dcentrica\Registration\Security;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
@@ -9,8 +9,9 @@ use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Security\Authenticator;
 use SilverStripe\View\TemplateGlobalProvider;
+use SilverStripe\Security\Security as CoreSecurity;
 
-class Security extends \SilverStripe\Security\Security implements TemplateGlobalProvider
+class Security extends CoreSecurity implements TemplateGlobalProvider
 {
     /**
      * The default registration URL
@@ -21,7 +22,6 @@ class Security extends \SilverStripe\Security\Security implements TemplateGlobal
      */
     private static $register_url = 'Security/register';
 
-
     /**
      * The default profile URL
      *
@@ -31,6 +31,11 @@ class Security extends \SilverStripe\Security\Security implements TemplateGlobal
      */
     private static $profile_url = 'Security/profile';
 
+    /**
+     * Undocumented variable
+     *
+     * @var array<string, string>
+     */
     private static $allowed_actions = [
         'register', 'profile'
     ];
@@ -60,7 +65,6 @@ class Security extends \SilverStripe\Security\Security implements TemplateGlobal
         if ($response = $this->preLogin()) {
             return $response;
         }
-        $authName = null;
 
         $handlers = $this->getServiceAuthenticatorsFromRequest($service, $request);
 
@@ -132,7 +136,7 @@ class Security extends \SilverStripe\Security\Security implements TemplateGlobal
      *
      * @return string
      */
-    public static function register_url()
+    public static function register_url(): string
     {
         return Controller::join_links(Director::baseURL(), self::config()->get('register_url'));
     }
@@ -144,12 +148,15 @@ class Security extends \SilverStripe\Security\Security implements TemplateGlobal
      *
      * @return string
      */
-    public static function profile_url()
+    public static function profile_url(): string
     {
         return Controller::join_links(Director::baseURL(), self::config()->get('profile_url'));
     }
-    
-    public static function get_template_global_variables()
+
+    /**
+     * @return array
+     */
+    public static function get_template_global_variables(): array
     {
         $tgv = parent::get_template_global_variables();
         $tgv['RegisterURL'] = 'register_url';

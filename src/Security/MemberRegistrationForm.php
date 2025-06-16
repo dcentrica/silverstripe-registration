@@ -1,18 +1,19 @@
 <?php
 
 
-namespace Profile\Security\MemberAuthenticator;
+namespace Dcentrica\Registration\Security;
 
-use HudhaifaS\Forms\FrontendImageField;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\LoginForm as BaseLoginForm;
-use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 use SilverStripe\View\Requirements;
 
@@ -26,8 +27,14 @@ use SilverStripe\View\Requirements;
  *    allowing extensions to "veto" execution by returning FALSE.
  *    Arguments: $member containing the detected Member record
  */
-class MemberProfileForm extends BaseLoginForm
+class MemberRegistrationForm extends BaseLoginForm
 {
+
+    /**
+     * This field is used in the "You are logged in as %s" message
+     * @var string
+     */
+    public $loggedInAsField = 'FirstName';
 
     /**
      * Required fields for validation
@@ -37,12 +44,8 @@ class MemberProfileForm extends BaseLoginForm
      */
     private static $required_fields = [
         'Email',
+        'Password',
     ];
-    /**
-     * This field is used in the "You are logged in as %s" message
-     * @var string
-     */
-    public $loggedInAsField = 'FirstName';
 
     /**
      * Constructor
@@ -74,8 +77,8 @@ class MemberProfileForm extends BaseLoginForm
     {
         $this->setController($controller);
         $this->authenticator_class = $authenticatorClass;
-
         $customCSS = project() . '/css/member_login.css';
+
         if (Director::fileExists($customCSS)) {
             Requirements::css($customCSS);
         }
@@ -94,8 +97,9 @@ class MemberProfileForm extends BaseLoginForm
 //            );
 //        }
         if (!$fields) {
-            $fields = $this->getFormFields()->removeByName('Groups');
+            $fields = $this->getFormFields();
         }
+
         if (!$actions) {
             $actions = $this->getFormActions();
         }
@@ -108,16 +112,16 @@ class MemberProfileForm extends BaseLoginForm
         if (isset($logoutAction)) {
             $this->setFormAction($logoutAction);
         }
+
         $this->setValidator(RequiredFields::create(self::config()->get('required_fields')));
     }
 
     /**
      * Build the FieldList for the login form
      *
-     * @skipUpgrade
      * @return FieldList
      */
-    protected function getFormFields()
+    protected function getFormFields(): FieldList
     {
         $request = $this->getRequest();
         if ($request->getVar('BackURL')) {
@@ -126,8 +130,13 @@ class MemberProfileForm extends BaseLoginForm
             $backURL = $request->getSession()->get('BackURL');
         }
 
-        $fields = Member::singleton()->getMemberFormFields();
-//        $fields->replaceField('ProfileImage', FrontendImageField::create('ProfileImage', 'ProfileImage'));
+        $fields = FieldList::create([
+            TextField::create('FirstName', 'Name'),
+            EmailField::create('Email', 'Email'),
+            PasswordField::create('Password', 'Password'),
+            PasswordField::create('PasswordConfirm', 'Confirm Password'),
+        ]);
+
         if (isset($backURL)) {
             $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
         }
@@ -140,34 +149,36 @@ class MemberProfileForm extends BaseLoginForm
      *
      * @return FieldList
      */
-    protected function getFormActions()
+    protected function getFormActions(): FieldList
     {
         $actions = FieldList::create(
-            FormAction::create('doSave', _t('SilverStripe\\Security\\Member.BUTTONSAVE', "Save"))
+            FormAction::create('doRegister', _t('SilverStripe\\Security\\Member.BUTTONREGISTER', "Register"))
         );
 
         return $actions;
     }
 
-
-    public function restoreFormState()
+    /**
+     * @return \SilverStripe\Security\LoginForm
+     */
+    public function restoreFormState(): self
     {
         parent::restoreFormState();
 
         $session = $this->getSession();
-        $forceMessage = $session->get('MemberProfileForm.force_message');
-//        if (($member = Security::getCurrentUser()) && !$forceMessage) {
-//            $message = _t(
-//                'SilverStripe\\Security\\Member.LOGGEDINAS',
-//                "You're logged in as {name}.",
-//                array('name' => $member->{$this->loggedInAsField})
-//            );
-//            $this->setMessage($message, ValidationResult::TYPE_INFO);
-//        }
+        $forceMessage = $session->get('MemberRegistrationForm.force_message');
+        if (($member = Security::getCurrentUser()) && !$forceMessage) {
+            $message = _t(
+                'SilverStripe\\Security\\Member.LOGGEDINAS',
+                "You're logged in as {name}.",
+                ['name' => $member->{$this->loggedInAsField}]
+            );
+            $this->setMessage($message, ValidationResult::TYPE_INFO);
+        }
 
         // Reset forced message
         if ($forceMessage) {
-            $session->set('MemberProfileForm.force_message', false);
+            $session->set('MemberRegistrationForm.force_message', false);
         }
 
         return $this;
@@ -179,7 +190,7 @@ class MemberProfileForm extends BaseLoginForm
      *
      * @return string
      */
-    public function getAuthenticatorName()
+    public function getAuthenticatorName(): string
     {
         return _t(self::class . '.AUTHENTICATORNAME', "E-mail & Password");
     }

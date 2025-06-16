@@ -1,23 +1,16 @@
 <?php
 
 
-namespace Registration\Security\MemberAuthenticator;
+namespace Dcentrica\Profile\Security;
 
 use SilverStripe\Control\Director;
 use SilverStripe\Control\RequestHandler;
-use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Forms\TextField;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\LoginForm as BaseLoginForm;
 use SilverStripe\Security\Member;
-use SilverStripe\Security\RememberLoginHash;
-use SilverStripe\Security\Security;
 use SilverStripe\View\Requirements;
 
 /**
@@ -30,14 +23,8 @@ use SilverStripe\View\Requirements;
  *    allowing extensions to "veto" execution by returning FALSE.
  *    Arguments: $member containing the detected Member record
  */
-class MemberRegistrationForm extends BaseLoginForm
+class MemberProfileForm extends BaseLoginForm
 {
-
-    /**
-     * This field is used in the "You are logged in as %s" message
-     * @var string
-     */
-    public $loggedInAsField = 'FirstName';
 
     /**
      * Required fields for validation
@@ -47,8 +34,12 @@ class MemberRegistrationForm extends BaseLoginForm
      */
     private static $required_fields = [
         'Email',
-        'Password',
     ];
+    /**
+     * This field is used in the "You are logged in as %s" message
+     * @var string
+     */
+    public $loggedInAsField = 'FirstName';
 
     /**
      * Constructor
@@ -100,7 +91,7 @@ class MemberRegistrationForm extends BaseLoginForm
 //            );
 //        }
         if (!$fields) {
-            $fields = $this->getFormFields();
+            $fields = $this->getFormFields()->removeByName('Groups');
         }
         if (!$actions) {
             $actions = $this->getFormActions();
@@ -132,7 +123,7 @@ class MemberRegistrationForm extends BaseLoginForm
             $backURL = $request->getSession()->get('BackURL');
         }
 
-        $fields = Member::singleton()->getMemberFormFields()->removeByName('Groups');
+        $fields = Member::singleton()->getMemberFormFields();
 
         if (isset($backURL)) {
             $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
@@ -149,7 +140,7 @@ class MemberRegistrationForm extends BaseLoginForm
     protected function getFormActions()
     {
         $actions = FieldList::create(
-            FormAction::create('doRegister', _t('SilverStripe\\Security\\Member.BUTTONREGISTER', "Register"))
+            FormAction::create('doSave', _t('SilverStripe\\Security\\Member.BUTTONSAVE', "Save"))
         );
 
         return $actions;
@@ -161,19 +152,19 @@ class MemberRegistrationForm extends BaseLoginForm
         parent::restoreFormState();
 
         $session = $this->getSession();
-        $forceMessage = $session->get('MemberRegistrationForm.force_message');
-        if (($member = Security::getCurrentUser()) && !$forceMessage) {
-            $message = _t(
-                'SilverStripe\\Security\\Member.LOGGEDINAS',
-                "You're logged in as {name}.",
-                array('name' => $member->{$this->loggedInAsField})
-            );
-            $this->setMessage($message, ValidationResult::TYPE_INFO);
-        }
+        $forceMessage = $session->get('MemberProfileForm.force_message');
+//        if (($member = Security::getCurrentUser()) && !$forceMessage) {
+//            $message = _t(
+//                'SilverStripe\\Security\\Member.LOGGEDINAS',
+//                "You're logged in as {name}.",
+//                array('name' => $member->{$this->loggedInAsField})
+//            );
+//            $this->setMessage($message, ValidationResult::TYPE_INFO);
+//        }
 
         // Reset forced message
         if ($forceMessage) {
-            $session->set('MemberRegistrationForm.force_message', false);
+            $session->set('MemberProfileForm.force_message', false);
         }
 
         return $this;
