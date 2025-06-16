@@ -9,6 +9,7 @@ SilverStripe\Core\Injector\Injector:
     properties:
       Authenticators:
         default: '%$Dcentrica\Registration\Security\MemberAuthenticator'
+
 ---
 After:
   - '#coreroutes'

@@ -12,7 +12,15 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 ## Configuration
 
-An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the form to be be displayed at the designated route.
+An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the registration form to be be displayed at the designated route.
+
+There's also an optional extension for augmenting `Member` records with a flag which tells consuming systems that users were indeed created via registration.
+
+```yml
+SilverStripe\Security\Member:
+  extensions:
+    - Dcentrica\Registration\Extension\MemberRegistrationExtension
+```
 
 ## History
 
