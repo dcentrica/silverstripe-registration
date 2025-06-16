@@ -11,7 +11,6 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\LoginForm as BaseLoginForm;
 use SilverStripe\Security\Security;
@@ -99,6 +98,17 @@ class MemberRegistrationForm extends BaseLoginForm
             $this->setFormAction($logoutAction);
         }
 
+        $data = $this
+            ->getController()
+            ->getRequest()
+            ->getSession()
+            ->get("FormData.{$this->getName()}.data");
+
+        if ($data) {
+            $this->loadDataFrom($data);
+        }
+
+
         $this->setValidator(RequiredFields::create(self::config()->get('required_fields')));
     }
 
@@ -117,10 +127,11 @@ class MemberRegistrationForm extends BaseLoginForm
         }
 
         $fields = FieldList::create([
-            TextField::create('FirstName', 'Name'),
             EmailField::create('Email', 'Email'),
-            PasswordField::create('Password', 'Password'),
-            PasswordField::create('PasswordConfirm', 'Confirm Password'),
+            PasswordField::create('Password', 'Password')
+                ->setAttribute('required', 'required'),
+            PasswordField::create('PasswordConfirm', 'Confirm Password')
+                ->setAttribute('required', 'required'),
         ]);
 
         if (isset($backURL)) {

@@ -135,12 +135,10 @@ class RegisterHandler extends RequestHandler
     {
         $this->extend('beforeRegistration');
 
-        if (empty($data['FirstName'])) {
-            $message = _t(
-                'SilverStripe\\Security\\Member.INVALIDNAME',
-                'Name is empty',
-            );
-        } else if(!Email::is_valid_address($data['Email'])) {
+        $session = $this->getRequest()->getSession();
+        $session->set("FormData.{$form->getName()}.data", $data);
+
+        if(!Email::is_valid_address($data['Email'])) {
             $message = _t(
                 'SilverStripe\\Security\\Member.INVALIDEMAIL',
                 'Email address is invalid',
@@ -151,8 +149,10 @@ class RegisterHandler extends RequestHandler
                 'The passwords don\'t match',
             );
         } else {
-            // Successful login
-            $member = Member::create();
+            [$lhs, $rhs] = array_pad(explode('@', $data['Email']), 2, '');
+            $member = Member::create([
+                'FirstName' => preg_replace('#[^\w\d]+#', '', $lhs),
+            ]);
             $form->saveInto($member);
 
             if ($member->write()) {
@@ -257,7 +257,6 @@ class RegisterHandler extends RequestHandler
     /**
      * Invoked if password is expired and must be changed
      *
-     * @skipUpgrade
      * @return HTTPResponse
      */
     protected function redirectToChangePassword(): HTTPResponse
