@@ -135,14 +135,20 @@ class RegisterHandler extends RequestHandler
     {
         $this->extend('beforeRegistration');
 
-        if (!Email::is_valid_address($data['Email'])) {
-            // Error messages
-            $message = 'Email address is invalid';
-        } else if (!$this->validPassword($data)) {
-            // Error messages
+        if (empty($data['FirstName'])) {
             $message = _t(
-                'SilverStripe\\Security\\Member.ERRORPASSWORDNOTMATCH',
-                'Passwords don\\t match',
+                'SilverStripe\\Security\\Member.INVALIDNAME',
+                'Name is empty',
+            );
+        } else if(!Email::is_valid_address($data['Email'])) {
+            $message = _t(
+                'SilverStripe\\Security\\Member.INVALIDEMAIL',
+                'Email address is invalid',
+            );
+        } else if(!$this->validPassword($data)) {
+            $message = _t(
+                'SilverStripe\\Security\\Member.INVALIDPASSWORD',
+                'The passwords don\'t match',
             );
         } else {
             // Successful login

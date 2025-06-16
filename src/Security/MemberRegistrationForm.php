@@ -72,7 +72,6 @@ class MemberRegistrationForm extends BaseLoginForm
         $name,
         $fields = null,
         $actions = null,
-        $checkCurrentUser = true
     )
     {
         $this->setController($controller);
@@ -83,19 +82,6 @@ class MemberRegistrationForm extends BaseLoginForm
             Requirements::css($customCSS);
         }
 
-//        if ($checkCurrentUser && Security::getCurrentUser()) {
-//            // @todo find a more elegant way to handle this
-//            $logoutAction = Security::logout_url();
-//            $fields = FieldList::create(
-//                HiddenField::create('AuthenticationMethod', null, $this->authenticator_class, $this)
-//            );
-//            $actions = FieldList::create(
-//                FormAction::create('logout', _t(
-//                    'SilverStripe\\Security\\Member.BUTTONLOGINOTHER',
-//                    'Log in as someone else'
-//                ))
-//            );
-//        }
         if (!$fields) {
             $fields = $this->getFormFields();
         }

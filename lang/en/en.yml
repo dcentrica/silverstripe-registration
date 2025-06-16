@@ -1,0 +1,5 @@
+en:
+  SilverStripe\Security\Member:
+    INVALIDNAME: 'Name is empty'
+    INVALIDEMAIL: 'Email is invalid'
+    INVALIDPASSWORD: "The passwords don't match"
