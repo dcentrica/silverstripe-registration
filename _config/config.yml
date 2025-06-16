@@ -1,6 +1,8 @@
 ---
 After:
   - '#corefieldtypes'
+Only:
+  envvarset: REGISTRATION_ENABLED
 ---
 SilverStripe\Core\Injector\Injector:
   Dcentrica\Registration\Security\Security:
@@ -10,6 +12,8 @@ SilverStripe\Core\Injector\Injector:
 ---
 After:
   - '#coreroutes'
+Only:
+  envvarset: REGISTRATION_ENABLED
 ---
 SilverStripe\Control\Director:
   rules:

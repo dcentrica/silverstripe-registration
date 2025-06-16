@@ -10,6 +10,10 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 * `silverstripe/framework ^5`
 * Does **not require** `silverstripe/cms`.
 
+## Configuration
+
+An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the form to be be displayed at the designated route.
+
 ## History
 
 Forked from [tony13tv/silverstripe-registration](https://github.com/tony13tv/silverstripe-registration) to work with Silverstripe 5+ and finish off a few rough edges.
