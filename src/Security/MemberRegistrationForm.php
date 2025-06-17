@@ -137,7 +137,9 @@ class MemberRegistrationForm extends BaseLoginForm
             EmailField::create(
                 'Email',
                 _t(sprintf('%s.REGFIELDEMAIL', Member::class), 'Email')
-            )->setAttribute('autocomplete', 'off'),
+            )
+                ->setAttribute('autocomplete', 'off')
+                ->setAttribute('autofocus', 'true'),
             PasswordField::create(
                 'Password',
                 _t(sprintf('%s.REGFIELDPASSWD', Member::class), 'Password')
