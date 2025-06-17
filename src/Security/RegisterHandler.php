@@ -125,7 +125,7 @@ class RegisterHandler extends RequestHandler
      */
     private function buildMember(array $data): Member
     {
-        [$lhs, $rhs] = array_pad(explode('@', $data['Email']), 2, '');
+        [$lhs, $rhs] = array_pad(explode('@', $data['Email'] ?? ''), 2, '');
 
         return Member::create([
             'FirstName' => preg_replace('#[^\w\d]+#', '', $lhs),

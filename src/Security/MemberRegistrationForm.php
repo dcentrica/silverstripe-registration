@@ -156,6 +156,8 @@ class MemberRegistrationForm extends BaseLoginForm
             )),
         ]);
 
+        $this->extend('updateRegistrationFields', $fields);
+
         if (isset($backURL)) {
             $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
         }
