@@ -8,7 +8,6 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Injector\Injector;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Authenticator;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Security\Member;
@@ -213,7 +212,8 @@ class RegisterHandler extends RequestHandler
             ->clear('SessionForms.MemberLoginForm.Remember');
 
         $member = Security::getCurrentUser();
-        if ($member->isPasswordExpired()) {
+
+        if ($member?->isPasswordExpired()) {
             return $this->redirectToChangePassword();
         }
 
@@ -225,6 +225,7 @@ class RegisterHandler extends RequestHandler
 
         // If a default login dest has been set, redirect to that.
         $defaultLoginDest = Security::config()->get('default_registration_dest');
+
         if ($defaultLoginDest) {
             return $this->redirect($defaultLoginDest);
         }
@@ -234,17 +235,20 @@ class RegisterHandler extends RequestHandler
     }
 
     /**
-     * Try to authenticate the user
+     * Try to authenticate the user. Contingent upon userland config.
      *
      * @param Member $member
      * @param array $data Submitted data
      * @param HTTPRequest $request
-     * @return Member Returns the member object on successful authentication
+     * @return null|Member Returns the member object on successful authentication
      *                or NULL on failure.
      */
-    public function performLogin($member, $data, HTTPRequest $request): Member
+    public function performLogin($member, $data, HTTPRequest $request): ?Member
     {
-        /** IdentityStore */
+        if (!$this->config()->get('login_after_register')) {
+            return null;
+        }
+
         $rememberMe = (isset($data['Remember']) && Security::config()->get('autologin_enabled'));
         /** @var IdentityStore $identityStore */
         $identityStore = Injector::inst()->get(IdentityStore::class);

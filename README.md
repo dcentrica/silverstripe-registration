@@ -22,6 +22,18 @@ SilverStripe\Security\Member:
     - Dcentrica\Registration\Extension\MemberRegistrationExtension
 ```
 
+By default, newly registered users are automatically logged-in. However, this behaviour can be configured as follows:
+
+```yml
+Dcentrica\Registration\Security\RegisterHandler:
+  # Prevent Silverstripe from auto-logging-in post registration
+  login_after_register: false
+```
+
+## Caveats
+
+The module also includes a profile management form, but this hasn't yet been tested as working 100%.
+
 ## History
 
 Forked from [tony13tv/silverstripe-registration](https://github.com/tony13tv/silverstripe-registration) to work with Silverstripe 5+ and finish off a few rough edges.
