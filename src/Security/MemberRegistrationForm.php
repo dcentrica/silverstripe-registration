@@ -152,7 +152,7 @@ class MemberRegistrationForm extends BaseLoginForm
                 'DoLogin',
                 _t(
                     sprintf('%s.DOLOGINFIELD', Member::class),
-                    '<p>Already have an account? <a href="/Security/login">login</a> instead.</p>'
+                    '<p>Already have an account? <a href="/Security/login">Login Here</a>.</p>'
             )),
         ]);
 
