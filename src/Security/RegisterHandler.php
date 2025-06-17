@@ -121,6 +121,19 @@ class RegisterHandler extends RequestHandler
     }
 
     /**
+     * @param array $data
+     * @return Member
+     */
+    private function buildMember(array $data): Member
+    {
+        [$lhs, $rhs] = array_pad(explode('@', $data['Email']), 2, '');
+
+        return Member::create([
+            'FirstName' => preg_replace('#[^\w\d]+#', '', $lhs),
+        ]);
+    }
+
+    /**
      * Login form handler method
      *
      * This method is called when the user finishes the login flow
@@ -149,10 +162,7 @@ class RegisterHandler extends RequestHandler
                 'The passwords don\'t match',
             );
         } else {
-            [$lhs, $rhs] = array_pad(explode('@', $data['Email']), 2, '');
-            $member = Member::create([
-                'FirstName' => preg_replace('#[^\w\d]+#', '', $lhs),
-            ]);
+            $member = $this->buildMember($data);
             $form->saveInto($member);
 
             if ($member->write()) {
@@ -220,17 +230,6 @@ class RegisterHandler extends RequestHandler
         }
 
         // Redirect the user to the page where they came from
-        if ($member) {
-            // Welcome message
-            $message = _t(
-                'SilverStripe\\Security\\Member.WELCOMEBACK',
-                'Welcome Back, {firstname}',
-                ['firstname' => $member->FirstName]
-            );
-            Security::singleton()->setSessionMessage($message, ValidationResult::TYPE_GOOD);
-        }
-
-        // Redirect back
         return $this->redirectBack();
     }
 

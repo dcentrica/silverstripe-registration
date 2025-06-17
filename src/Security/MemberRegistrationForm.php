@@ -3,17 +3,17 @@
 
 namespace Dcentrica\Registration\Security;
 
+use Eluceo\iCal\Domain\ValueObject\Member;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\RequestHandler;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\LoginForm as BaseLoginForm;
-use SilverStripe\Security\Security;
 use SilverStripe\View\Requirements;
 
 /**
@@ -44,6 +44,7 @@ class MemberRegistrationForm extends BaseLoginForm
     private static $required_fields = [
         'Email',
         'Password',
+        'PasswordConfirm',
     ];
 
     /**
@@ -108,7 +109,6 @@ class MemberRegistrationForm extends BaseLoginForm
             $this->loadDataFrom($data);
         }
 
-
         $this->setValidator(RequiredFields::create(self::config()->get('required_fields')));
     }
 
@@ -120,6 +120,7 @@ class MemberRegistrationForm extends BaseLoginForm
     protected function getFormFields(): FieldList
     {
         $request = $this->getRequest();
+
         if ($request->getVar('BackURL')) {
             $backURL = $request->getVar('BackURL');
         } else {
@@ -127,11 +128,30 @@ class MemberRegistrationForm extends BaseLoginForm
         }
 
         $fields = FieldList::create([
-            EmailField::create('Email', 'Email'),
-            PasswordField::create('Password', 'Password')
-                ->setAttribute('required', 'required'),
-            PasswordField::create('PasswordConfirm', 'Confirm Password')
-                ->setAttribute('required', 'required'),
+            LiteralField::create(
+                'Intro',
+                _t(
+                    sprintf('%s.DOREGFIELD', Member::class),
+                    '<p>Enter your details to register.</p>'
+            )),
+            EmailField::create(
+                'Email',
+                _t(sprintf('%s.REGFIELDEMAIL', Member::class), 'Email')
+            ),
+            PasswordField::create(
+                'Password',
+                _t(sprintf('%s.REGFIELDPASSWD', Member::class), 'Password')
+            ),
+            PasswordField::create(
+                'PasswordConfirm',
+                _t(sprintf('%s.REGFIELDPASSWDCNFM', Member::class), 'Confirm Password')
+            ),
+            LiteralField::create(
+                'DoLogin',
+                _t(
+                    sprintf('%s.DOLOGINFIELD', Member::class),
+                    '<p>Already have an account? <a href="/Security/login">login</a> instead.</p>'
+            )),
         ]);
 
         if (isset($backURL)) {
@@ -156,39 +176,13 @@ class MemberRegistrationForm extends BaseLoginForm
     }
 
     /**
-     * @return \SilverStripe\Security\LoginForm
-     */
-    public function restoreFormState(): self
-    {
-        parent::restoreFormState();
-
-        $session = $this->getSession();
-        $forceMessage = $session->get('MemberRegistrationForm.force_message');
-        if (($member = Security::getCurrentUser()) && !$forceMessage) {
-            $message = _t(
-                'SilverStripe\\Security\\Member.LOGGEDINAS',
-                "You're logged in as {name}.",
-                ['name' => $member->{$this->loggedInAsField}]
-            );
-            $this->setMessage($message, ValidationResult::TYPE_INFO);
-        }
-
-        // Reset forced message
-        if ($forceMessage) {
-            $session->set('MemberRegistrationForm.force_message', false);
-        }
-
-        return $this;
-    }
-
-    /**
-     * The name of this login form, to display in the frontend
+     * The name of this form, to display in the frontend
      * Replaces Authenticator::get_name()
      *
      * @return string
      */
     public function getAuthenticatorName(): string
     {
-        return _t(self::class . '.AUTHENTICATORNAME', "E-mail & Password");
+        return _t(self::class . '.AUTHENTICATORNAME', "Register");
     }
 }
