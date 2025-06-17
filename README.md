@@ -32,7 +32,8 @@ Dcentrica\Registration\Security\RegisterHandler:
 
 ## Caveats
 
-The module also includes a profile management form, but this hasn't yet been tested as working 100%.
+* The module also includes a profile management form, but this hasn't yet been tested as working 100%.
+* The module does **not** include any form of spam protection.
 
 ## History
 
