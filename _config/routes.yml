@@ -1,0 +1,11 @@
+---
+Name: silverstripe-registration-routes
+After:
+  - '#coreroutes'
+Only:
+  envvarset: REGISTRATION_ENABLED
+---
+
+SilverStripe\Control\Director:
+  rules:
+    'Security//$Action/$ID/$OtherID': Dcentrica\Registration\Security\Security

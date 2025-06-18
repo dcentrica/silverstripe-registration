@@ -34,7 +34,7 @@ class Security extends CoreSecurity implements TemplateGlobalProvider
     /**
      * Undocumented variable
      *
-     * @var string[]
+     * @var array<string, string>
      */
     private static $allowed_actions = [
         'register',
