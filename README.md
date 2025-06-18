@@ -14,7 +14,7 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the registration form to be be displayed at the designated route.
 
-There's also an optional extension for augmenting `Member` records with a flag which tells consuming systems that users were indeed created via registration.
+There's also an optional extension for augmenting `Member` records with a field, whose value tells userland systems that a user was indeed created via registration.
 
 ```yml
 SilverStripe\Security\Member:
@@ -28,6 +28,14 @@ By default, newly registered users are automatically logged-in. However, this be
 Dcentrica\Registration\Security\RegisterHandler:
   # Prevent Silverstripe from auto-logging-in post registration
   login_after_register: false
+```
+
+You can add an optional "success" message when registration is complete. This is useful to show if you do not want registered
+users to be automatically logged-in:
+
+```yml
+Dcentrica\Registration\Security\RegisterHandler:
+  registration_completion_message: 'Well done, you filled in a form. Who's a good boy?'
 ```
 
 ## Caveats

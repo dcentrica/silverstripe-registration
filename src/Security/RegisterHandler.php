@@ -12,7 +12,7 @@ use SilverStripe\Security\Authenticator;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\ChangePasswordForm;
-use SilverStripe\Security\Security;
+use Dcentrica\Registration\Security\Security;
 
 /**
  * Handle login requests from MemberLoginForm
@@ -165,6 +165,11 @@ class RegisterHandler extends RequestHandler
             $form->saveInto($member);
 
             if ($member->write()) {
+                // Show optional message on registration form
+                if ($message = self::config()->get('registration_completion_message')) {
+                    $form->sessionMessage($message, 'good');
+                }
+
                 $this->performLogin($member, $data, $request);
                 $this->extend('afterSuccessfulRegistration', $member);
 
@@ -205,11 +210,8 @@ class RegisterHandler extends RequestHandler
      */
     protected function redirectAfterSuccessfulRegistration(): HTTPResponse
     {
-        $this
-            ->getRequest()
-            ->getSession()
-            ->clear('SessionForms.MemberLoginForm.Email')
-            ->clear('SessionForms.MemberLoginForm.Remember');
+        $session = $this->getRequest()->getSession();
+        $session->clear("FormData.{$this->registerForm()->getName()}.data");
 
         $member = Security::getCurrentUser();
 
@@ -218,16 +220,13 @@ class RegisterHandler extends RequestHandler
         }
 
         // Absolute redirection URLs may cause spoofing
-        $backURL = $this->getBackURL();
-        if ($backURL) {
+        if ($backURL = $this->getBackURL()) {
             return $this->redirect($backURL);
         }
 
         // If a default login dest has been set, redirect to that.
-        $defaultLoginDest = Security::config()->get('default_registration_dest');
-
-        if ($defaultLoginDest) {
-            return $this->redirect($defaultLoginDest);
+        if ($defaultDest = Security::config()->get('default_registration_dest')) {
+            return $this->redirect($defaultDest);
         }
 
         // Redirect the user to the page where they came from

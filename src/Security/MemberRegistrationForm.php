@@ -28,18 +28,11 @@ use SilverStripe\View\Requirements;
  */
 class MemberRegistrationForm extends BaseLoginForm
 {
-
-    /**
-     * This field is used in the "You are logged in as %s" message
-     * @var string
-     */
-    public $loggedInAsField = 'FirstName';
-
     /**
      * Required fields for validation
      *
      * @config
-     * @var array
+     * @var string[]
      */
     private static $required_fields = [
         'Email',
@@ -129,11 +122,9 @@ class MemberRegistrationForm extends BaseLoginForm
 
         $fields = FieldList::create([
             LiteralField::create(
-                'Intro',
-                _t(
-                    sprintf('%s.DOREGFIELD', Member::class),
-                    '<p>Enter your details to register.</p>'
-            )),
+                'DoRegister',
+                '<p class="message good">' . _t(sprintf('%s.REGFORMINTROSTART', __CLASS__), 'Register your details below.') . '</p>'
+            ),
             EmailField::create(
                 'Email',
                 _t(sprintf('%s.REGFIELDEMAIL', Member::class), 'Email')
