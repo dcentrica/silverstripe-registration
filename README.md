@@ -14,6 +14,14 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the registration form to be be displayed at the designated route.
 
+The correct route overrides need to be set:
+
+```yml
+SilverStripe\Control\Director:
+  rules:
+    'Security//$Action/$ID/$OtherID': Dcentrica\Registration\Security\Security
+```
+
 There's also an optional extension for augmenting `Member` records with a field, whose value tells userland systems that a user was indeed created via registration.
 
 ```yml
