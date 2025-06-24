@@ -1,16 +1,19 @@
 <?php
 
 
-namespace Dcentrica\Profile\Security;
+namespace Dcentrica\Registration\Security;
 
+use Eluceo\iCal\Domain\ValueObject\Member;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Security\LoginForm as BaseLoginForm;
-use SilverStripe\Security\Member;
+use SilverStripe\Security\LoginForm;
 use SilverStripe\View\Requirements;
 
 /**
@@ -23,23 +26,19 @@ use SilverStripe\View\Requirements;
  *    allowing extensions to "veto" execution by returning FALSE.
  *    Arguments: $member containing the detected Member record
  */
-class MemberProfileForm extends BaseLoginForm
+class RegistrationForm extends LoginForm
 {
-
     /**
      * Required fields for validation
      *
      * @config
-     * @var array
+     * @var string[]
      */
     private static $required_fields = [
         'Email',
+        'Password',
+        'PasswordConfirm',
     ];
-    /**
-     * This field is used in the "You are logged in as %s" message
-     * @var string
-     */
-    public $loggedInAsField = 'FirstName';
 
     /**
      * Constructor
@@ -66,33 +65,20 @@ class MemberProfileForm extends BaseLoginForm
         $name,
         $fields = null,
         $actions = null,
-        $checkCurrentUser = true
     )
     {
         $this->setController($controller);
         $this->authenticator_class = $authenticatorClass;
-
         $customCSS = project() . '/css/member_login.css';
+
         if (Director::fileExists($customCSS)) {
             Requirements::css($customCSS);
         }
 
-//        if ($checkCurrentUser && Security::getCurrentUser()) {
-//            // @todo find a more elegant way to handle this
-//            $logoutAction = Security::logout_url();
-//            $fields = FieldList::create(
-//                HiddenField::create('AuthenticationMethod', null, $this->authenticator_class, $this)
-//            );
-//            $actions = FieldList::create(
-//                FormAction::create('logout', _t(
-//                    'SilverStripe\\Security\\Member.BUTTONLOGINOTHER',
-//                    'Log in as someone else'
-//                ))
-//            );
-//        }
         if (!$fields) {
-            $fields = $this->getFormFields()->removeByName('Groups');
+            $fields = $this->getFormFields();
         }
+
         if (!$actions) {
             $actions = $this->getFormActions();
         }
@@ -105,25 +91,63 @@ class MemberProfileForm extends BaseLoginForm
         if (isset($logoutAction)) {
             $this->setFormAction($logoutAction);
         }
+
+        $data = $this
+            ->getController()
+            ->getRequest()
+            ->getSession()
+            ->get("FormData.{$this->getName()}.data");
+
+        if ($data) {
+            $this->loadDataFrom($data);
+        }
+
         $this->setValidator(RequiredFields::create(self::config()->get('required_fields')));
     }
 
     /**
      * Build the FieldList for the login form
      *
-     * @skipUpgrade
      * @return FieldList
      */
-    protected function getFormFields()
+    protected function getFormFields(): FieldList
     {
         $request = $this->getRequest();
+
         if ($request->getVar('BackURL')) {
             $backURL = $request->getVar('BackURL');
         } else {
             $backURL = $request->getSession()->get('BackURL');
         }
 
-        $fields = Member::singleton()->getMemberFormFields();
+        $fields = FieldList::create([
+            LiteralField::create(
+                'DoRegister',
+                '<p class="message good">' . _t(sprintf('%s.REGFORMINTROSTART', __CLASS__), 'Register your details below.') . '</p>'
+            ),
+            EmailField::create(
+                'Email',
+                _t(sprintf('%s.REGFIELDEMAIL', Member::class), 'Email')
+            )
+                ->setAttribute('autocomplete', 'off')
+                ->setAttribute('autofocus', 'true'),
+            PasswordField::create(
+                'Password',
+                _t(sprintf('%s.REGFIELDPASSWD', Member::class), 'Password')
+            )->setAttribute('autocomplete', 'off'),
+            PasswordField::create(
+                'PasswordConfirm',
+                _t(sprintf('%s.REGFIELDPASSWDCNFM', Member::class), 'Confirm Password')
+            )->setAttribute('autocomplete', 'off'),
+            LiteralField::create(
+                'DoLogin',
+                _t(
+                    sprintf('%s.DOLOGINFIELD', Member::class),
+                    '<p>Already have an account? <a href="/Security/login">Login Here</a>.</p>'
+            )),
+        ]);
+
+        $this->extend('updateRegistrationFields', $fields);
 
         if (isset($backURL)) {
             $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
@@ -137,47 +161,23 @@ class MemberProfileForm extends BaseLoginForm
      *
      * @return FieldList
      */
-    protected function getFormActions()
+    protected function getFormActions(): FieldList
     {
         $actions = FieldList::create(
-            FormAction::create('doSave', _t('SilverStripe\\Security\\Member.BUTTONSAVE', "Save"))
+            FormAction::create('doRegister', _t('SilverStripe\\Security\\Member.BUTTONREGISTER', "Register"))
         );
 
         return $actions;
     }
 
-
-    public function restoreFormState()
-    {
-        parent::restoreFormState();
-
-        $session = $this->getSession();
-        $forceMessage = $session->get('MemberProfileForm.force_message');
-//        if (($member = Security::getCurrentUser()) && !$forceMessage) {
-//            $message = _t(
-//                'SilverStripe\\Security\\Member.LOGGEDINAS',
-//                "You're logged in as {name}.",
-//                array('name' => $member->{$this->loggedInAsField})
-//            );
-//            $this->setMessage($message, ValidationResult::TYPE_INFO);
-//        }
-
-        // Reset forced message
-        if ($forceMessage) {
-            $session->set('MemberProfileForm.force_message', false);
-        }
-
-        return $this;
-    }
-
     /**
-     * The name of this login form, to display in the frontend
+     * The name of this form, to display in the frontend
      * Replaces Authenticator::get_name()
      *
      * @return string
      */
-    public function getAuthenticatorName()
+    public function getAuthenticatorName(): string
     {
-        return _t(self::class . '.AUTHENTICATORNAME', "E-mail & Password");
+        return _t(self::class . '.AUTHENTICATORNAME', "Register");
     }
 }

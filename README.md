@@ -14,14 +14,6 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the registration form to be be displayed at the designated route.
 
-The correct route overrides need to be set:
-
-```yml
-SilverStripe\Control\Director:
-  rules:
-    'Security//$Action/$ID/$OtherID': Dcentrica\Registration\Security\Security
-```
-
 There's also an optional extension for augmenting `Member` records with a field, whose value tells userland systems that a user was indeed created via registration.
 
 ```yml
@@ -33,7 +25,7 @@ SilverStripe\Security\Member:
 By default, newly registered users are automatically logged-in. However, this behaviour can be configured as follows:
 
 ```yml
-Dcentrica\Registration\Security\RegisterHandler:
+Dcentrica\Registration\Security\RegistrationHandler:
   # Prevent Silverstripe from auto-logging-in post registration
   login_after_register: false
 ```
@@ -42,13 +34,13 @@ You can add an optional "success" message when registration is complete. This is
 users to be automatically logged-in:
 
 ```yml
-Dcentrica\Registration\Security\RegisterHandler:
+Dcentrica\Registration\Security\RegistrationHandler:
   registration_completion_message: 'Well done, you filled in a form. Who's a good boy?'
 ```
 
 ## Caveats
 
-* The module also includes a profile management form, but this hasn't yet been tested as working 100%.
+* The module does **not** include any form of profile management (unlike the module this package was forked from).
 * The module does **not** include any form of spam protection.
 
 ## History

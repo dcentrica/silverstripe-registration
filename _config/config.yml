@@ -7,11 +7,11 @@ Only:
 ---
 
 SilverStripe\Core\Injector\Injector:
-  Dcentrica\Registration\Security\Security:
+  SilverStripe\Security\Security:
     properties:
       Authenticators:
-        default: '%$Dcentrica\Registration\Security\MemberAuthenticator'
+        default: '%$Dcentrica\Registration\Security\RegistrationAuthenticator'
 
-Dcentrica\Registration\Security\RegisterHandler:
+Dcentrica\Registration\Security\RegistrationHandler:
   # Do we want Silverstripe to auto-login post registration?
   login_after_register: true

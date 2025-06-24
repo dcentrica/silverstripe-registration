@@ -7,17 +7,19 @@ use SilverStripe\Control\Email\Email;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\RequestHandler;
+use SilverStripe\Core\Environment;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Authenticator;
 use SilverStripe\Security\IdentityStore;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\ChangePasswordForm;
-use Dcentrica\Registration\Security\Security;
+use SilverStripe\Security\Security;
+use SilverStripe\Security\MemberAuthenticator\MemberAuthenticator;
 
 /**
  * Handle login requests from MemberLoginForm
  */
-class RegisterHandler extends RequestHandler
+class RegistrationHandler extends RequestHandler
 {
     /**
      * @var Authenticator
@@ -37,7 +39,7 @@ class RegisterHandler extends RequestHandler
      */
     private static $allowed_actions = [
         'register',
-        'RegisterForm',
+        'RegistrationForm',
         'confirm',
     ];
 
@@ -81,8 +83,12 @@ class RegisterHandler extends RequestHandler
      */
     public function register(): array
     {
+        if (!Environment::getEnv('REGISTRATION_ENABLED')) {
+            return $this->httpError(404, 'Registration is not enabled.');
+        }
+
         return [
-            'Form' => $this->registerForm(),
+            'Form' => $this->registrationForm(),
         ];
     }
 
@@ -90,14 +96,14 @@ class RegisterHandler extends RequestHandler
      * Return the MemberLoginForm form
      *
      * @skipUpgrade
-     * @return MemberRegistrationForm
+     * @return RegistrationForm
      */
-    public function registerForm(): MemberRegistrationForm
+    public function registrationForm(): RegistrationForm
     {
-        return MemberRegistrationForm::create(
+        return RegistrationForm::create(
             $this,
             get_class($this->authenticator),
-            'RegisterForm'
+            'RegistrationForm'
         );
     }
 
@@ -138,12 +144,12 @@ class RegisterHandler extends RequestHandler
      * This method is called when the user finishes the login flow
      *
      * @param array $data Submitted data
-     * @param MemberRegistrationForm $form
+     * @param RegistrationForm $form
      * @param HTTPRequest $request
      * @return HTTPResponse
      * @throws Exception
      */
-    public function doRegister($data, MemberRegistrationForm $form, HTTPRequest $request): HTTPResponse
+    public function doRegister($data, RegistrationForm $form, HTTPRequest $request): HTTPResponse
     {
         $this->extend('beforeRegistration');
 
