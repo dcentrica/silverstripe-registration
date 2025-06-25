@@ -235,7 +235,7 @@ class RegistrationHandler extends RequestHandler
     protected function redirectAfterSuccessfulRegistration(): HTTPResponse
     {
         $session = $this->getRequest()->getSession();
-        $session->clear("FormData.{$this->registerForm()->getName()}.data");
+        $session->clear("FormData.{$this->registrationForm()->getName()}.data");
 
         $member = Security::getCurrentUser();
 
