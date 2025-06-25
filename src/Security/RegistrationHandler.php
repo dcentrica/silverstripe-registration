@@ -46,9 +46,16 @@ class RegistrationHandler extends RequestHandler
     /**
      * Link to this handler
      *
-     * @var string
+     * @var null|string
      */
-    protected $link = null;
+    protected ?string $link = null;
+
+    /**
+     * Optional condition which when true, hides the registration form.
+     *
+     * @var bool
+     */
+    protected bool $hideCondition = false;
 
     /**
      * @param string $link The URL to recreate this request handler
@@ -59,6 +66,17 @@ class RegistrationHandler extends RequestHandler
         $this->link = $link;
         $this->authenticator = $authenticator;
         parent::__construct();
+    }
+
+    /**
+     * @param   bool $condition
+     * @return  self
+     */
+    public function setHideCondition(bool $condition): self
+    {
+        $this->hideCondition = $condition;
+
+        return $this;
     }
 
     /**
@@ -83,7 +101,7 @@ class RegistrationHandler extends RequestHandler
      */
     public function register(): array
     {
-        if (!Environment::getEnv('REGISTRATION_ENABLED')) {
+        if (!Environment::getEnv('REGISTRATION_ENABLED') || $this->hideCondition) {
             return $this->httpError(404, 'Registration is not enabled.');
         }
 

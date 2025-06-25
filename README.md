@@ -12,7 +12,20 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 ## Configuration
 
-An environment variable `REGISTRATION_ENABLED` needs to be set in your server/hosting environment(s) in order for the registration form to be be displayed at the designated route.
+An environment variable `REGISTRATION_ENABLED` should be set in your hosting environment for the registration form to show. You can also choose to hide the form in userland code based on an arbitrary boolean using `$handler->setHideCondition()`. Just overload this modules' `getRegistrationHandler()` method in your own `Authenticator` subclass as follows:
+
+```
+/**
+  * @param string $link
+  * @return RegistrationHandler
+  */
+public function getRegistrationHandler(string $link): RegistrationHandler
+{
+    $handler = parent::getRegistrationHandler($link, $this);
+
+    return $handler->setHideCondition((bool) Environment::getEnv('SOME_VAR'));
+}
+```
 
 There's also an optional extension for augmenting `Member` records with a field, whose value tells userland systems that a user was indeed created via registration.
 
