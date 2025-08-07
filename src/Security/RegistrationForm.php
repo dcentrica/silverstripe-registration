@@ -167,6 +167,8 @@ class RegistrationForm extends LoginForm
             FormAction::create('doRegister', _t('SilverStripe\\Security\\Member.BUTTONREGISTER', "Register"))
         );
 
+        $this->extend('updateRegistrationActions', $actions);
+
         return $actions;
     }
 
