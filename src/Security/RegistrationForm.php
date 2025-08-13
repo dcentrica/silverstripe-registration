@@ -15,6 +15,7 @@ use SilverStripe\Forms\PasswordField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\LoginForm;
 use SilverStripe\View\Requirements;
+use SilverStripe\Core\Environment;
 
 /**
  * Log-in form for the "member" authentication method.
@@ -113,12 +114,7 @@ class RegistrationForm extends LoginForm
     protected function getFormFields(): FieldList
     {
         $request = $this->getRequest();
-
-        if ($request->getVar('BackURL')) {
-            $backURL = $request->getVar('BackURL');
-        } else {
-            $backURL = $request->getSession()->get('BackURL');
-        }
+        $backURL = $request->getVar('BackURL') ?: $request->getSession()->get('BackURL');
 
         $fields = FieldList::create([
             LiteralField::create(
@@ -149,7 +145,7 @@ class RegistrationForm extends LoginForm
 
         $this->extend('updateRegistrationFields', $fields);
 
-        if (isset($backURL)) {
+        if (Environment::getEnv('REGISTRATION_USE_BACKURL') && isset($backURL)) {
             $fields->push(HiddenField::create('BackURL', 'BackURL', $backURL));
         }
 

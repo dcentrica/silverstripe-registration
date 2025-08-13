@@ -51,6 +51,8 @@ Dcentrica\Registration\Security\RegistrationHandler:
   registration_completion_message: 'Well done, you filled in a form. Who's a good boy?'
 ```
 
+This module used to account for any Silverstripe `BackURL` which existed anywhere in the system's request params. Since this isn't guaranteed to be used everywhere, it's now behind an environment variable. If your system needs to redirect post-registration in this way, then ensure you set the `REGISTRATION_USE_BACKURL` environment variable.
+
 ## Caveats
 
 * The module does **not** include any form of profile management (unlike the module this package was forked from).
