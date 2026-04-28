@@ -17,11 +17,4 @@ class MemberRegistrationExtension extends Extension
     private static $db = [
         'CreatedByRegistration' => DBBoolean::class,
     ];
-
-    /**
-     * @var array<string, string>
-     */
-    private static $defaults = [
-        'CreatedByRegistration' => 1,
-    ];
 }
