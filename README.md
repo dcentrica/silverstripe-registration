@@ -6,8 +6,8 @@ It [does exactly what it says on the tin](https://www.youtube.com/watch?v=f8v_Rq
 
 ## Requirements
 
-* `PHP ^8`
-* `silverstripe/framework ^5`
+* `PHP ^8.3`
+* `silverstripe/framework ^6`
 * Does **not require** `silverstripe/cms`.
 
 ## Configuration
@@ -60,7 +60,7 @@ This module used to account for any Silverstripe `BackURL` which existed anywher
 
 ## History
 
-Forked from [tony13tv/silverstripe-registration](https://github.com/tony13tv/silverstripe-registration) to work with Silverstripe 5+ and finish off a few rough edges.
+Forked from [tony13tv/silverstripe-registration](https://github.com/tony13tv/silverstripe-registration) to work with Silverstripe 5 and 6+ and finish off a few rough edges.
 
 ## License
 

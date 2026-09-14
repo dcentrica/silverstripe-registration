@@ -17,7 +17,7 @@
   "require": {
     "php": "^8",
     "ext-json": "*",
-    "silverstripe/framework": "^5"
+    "silverstripe/framework": "^6"
   },
   "extra": {
     "expose": [
