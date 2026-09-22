@@ -12,7 +12,7 @@ use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\PasswordField;
-use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Security\LoginForm;
 use SilverStripe\View\Requirements;
 use SilverStripe\Core\Environment;
@@ -103,7 +103,7 @@ class RegistrationForm extends LoginForm
             $this->loadDataFrom($data);
         }
 
-        $this->setValidator(RequiredFields::create(self::config()->get('required_fields')));
+        $this->setValidator(RequiredFieldsValidator::create(self::config()->get('required_fields')));
     }
 
     /**
